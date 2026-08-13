@@ -97,14 +97,6 @@
     background-clip: text;
   }
 
-  /* Título do hero: degradê radial saindo do mascote */
-  .text-hero-brand {
-    background: radial-gradient(120% 300% at 50% -120%, hsl(var(--crimson)) 0%, hsl(var(--crimson) / 0.75) 35%, hsl(var(--foreground)) 85%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
   .bg-felt {
     background: radial-gradient(ellipse at center, hsl(231 8% 8%), hsl(var(--background)));
   }
