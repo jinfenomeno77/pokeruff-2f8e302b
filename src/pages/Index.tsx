@@ -100,7 +100,7 @@ export default function Index() {
               POKERUFF
             </h1>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-md mx-auto">
-              Torneios presenciais de Texas Hold'em para alunos da UFF, com estrutura profissional e muita resenha.
+              Torneios presenciais de Texas Hold'em para alunos da UFF com estrutura profissional e muita resenha.
             </p>
 
             <Link
