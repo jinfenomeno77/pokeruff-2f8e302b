@@ -888,7 +888,11 @@ export default function Tournaments() {
                         : `Inscritos Confirmados (${visibleRegistrations.filter(r => r.status === "confirmed").length})`}
                   </h3>
 
-                  {isFinished ? (
+                  {loadingRegistrations ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Carregando inscritos...
+                    </p>
+                  ) : isFinished ? (
                     <div className="rounded-lg border border-border divide-y divide-border max-h-48 overflow-y-auto">
                       {visibleRegistrations.length === 0 && (
                         <p className="text-sm text-muted-foreground text-center py-4">
