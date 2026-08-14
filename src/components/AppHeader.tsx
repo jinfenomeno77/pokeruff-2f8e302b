@@ -26,7 +26,7 @@ export default function AppHeader() {
       <div className="container flex h-14 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="PokerUFF" className="h-9 w-9 rounded-full object-cover" />
-          <span className="font-display text-xl font-bold tracking-wider text-gradient-gold">
+          <span className="font-display text-xl font-bold tracking-wider text-foreground">
             POKERUFF
           </span>
         </Link>

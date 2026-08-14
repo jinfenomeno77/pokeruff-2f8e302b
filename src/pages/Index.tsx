@@ -94,7 +94,7 @@ export default function Index() {
                 Poker Tournament
               </p>
             )}
-            <h1 className="font-display text-5xl md:text-7xl font-bold text-gradient-gold mb-4">
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
               POKERUFF
             </h1>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-md mx-auto">
