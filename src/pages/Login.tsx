@@ -25,10 +25,7 @@ export default function Login() {
     try {
       if (mode === "forgot") {
         if (!email.trim()) { setError("Informe seu e-mail."); return; }
-        const appOrigin =
-          window.location.hostname === "localhost"
-            ? window.location.origin
-            : "https://pokeruff.lovable.app";
+        const appOrigin = window.location.origin;
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${appOrigin}/reset-password`,
         });
