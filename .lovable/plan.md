@@ -1,53 +1,18 @@
+# Corrigir a logo que não aparece
 
+## O que está acontecendo
 
-## Timer em tempo real via Supabase Realtime
+A nova logo foi publicada como asset de CDN (`src/assets/logo-pokeruff.png.asset.json`) e o código aponta para a URL `/__l5e/assets-v1/.../logo-pokeruff.png`. Ao pedir essa URL no ambiente atual, o servidor devolve o HTML do app (código 200, `text/html`, 1.6 KB) em vez do PNG — ou seja, a rota do CDN não é servida aqui, e o `<img>` recebe HTML e não renderiza nada.
 
-Sim, é possivel. A tabela `tournaments` já tem `current_blind_index` e `timer_running`. O plano é armazenar o estado do timer no banco e usar Supabase Realtime para sincronizar todos os clientes.
+## Correção
 
-### Abordagem
+Passar a logo a ser um arquivo de imagem do próprio projeto, importado pelo bundler — assim funciona no preview e no site publicado, sem depender da rota de CDN.
 
-O admin controla o timer. Quando ele dá play/pause/skip, o estado é salvo na tabela `tournaments`. Todos os clientes assinam mudanças nessa tabela via Realtime e calculam localmente o tempo restante.
+1. Salvar o PNG enviado em `src/assets/logo-pokeruff.png`.
+2. Em `src/pages/Index.tsx` e `src/components/AppHeader.tsx`, trocar o import do pointer JSON por `import logo from "@/assets/logo-pokeruff.png"`.
+3. Remover o pointer `src/assets/logo-pokeruff.png.asset.json` (e apagar o asset do CDN, já que não será mais usado) e o antigo `src/assets/logo-pokeruff.jpeg`, que não é mais referenciado.
+4. Manter o estilo atual (`object-contain`, sem fundo redondo vermelho) no hero e no header.
 
-**Dado-chave**: em vez de fazer "tick" no banco a cada segundo, salvamos `timer_seconds_left` (segundos restantes no momento da ação) e `timer_updated_at` (timestamp UTC). Cada cliente calcula: `timeLeft = timer_seconds_left - (agora - timer_updated_at)` quando `timer_running = true`.
+## Verificação
 
----
-
-### 1. Migration — adicionar colunas ao `tournaments`
-
-```sql
-ALTER TABLE public.tournaments
-  ADD COLUMN IF NOT EXISTS timer_seconds_left integer DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS timer_updated_at timestamptz DEFAULT now();
-
-ALTER TABLE public.tournaments REPLICA IDENTITY FULL;
-```
-
-`REPLICA IDENTITY FULL` é necessário para o Realtime capturar updates corretamente.
-
-### 2. Refatorar `BlindTimer` para modo sincronizado
-
-O componente receberá uma nova prop `syncMode` com os dados do torneio. Quando ativado:
-
-- **Admin (isAdmin=true)**: cada ação (play, pause, skip, reset) faz um `UPDATE` na tabela `tournaments` com os novos valores de `current_blind_index`, `timer_running`, `timer_seconds_left` e `timer_updated_at`.
-- **Todos os clientes**: assinam `supabase.channel('tournament-timer').on('postgres_changes', ...)` filtrando pelo `id` do torneio. Ao receber update, recalculam o estado local.
-- **Contagem local**: quando `timer_running=true`, um `setInterval` local decrementa `timeLeft` a cada segundo, partindo do valor calculado. Isso evita latência visível.
-
-### 3. Atualizar `Tournaments.tsx`
-
-- Na seção de torneio com `status = 'in-progress'`, renderizar o `BlindTimer` em modo sync (somente leitura, sem controles de admin).
-- Assinar Realtime para o torneio ativo e passar os dados atualizados ao timer.
-
-### 4. Atualizar `Admin.tsx`
-
-- O `BlindTimer` no admin passa a gravar cada ação no banco em vez de apenas alterar estado local.
-- Quando o admin clica "Iniciar Torneio", o status muda para `in-progress`, `timer_running = true`, `timer_seconds_left` = duração do nível 0, e `timer_updated_at = now()`.
-
-### Resumo dos arquivos alterados
-
-| Arquivo | Alteração |
-|---|---|
-| Migration SQL | Adiciona `timer_seconds_left`, `timer_updated_at`, replica identity |
-| `src/components/BlindTimer.tsx` | Adiciona sync mode: escrita no DB (admin) + leitura via Realtime (todos) |
-| `src/pages/Tournaments.tsx` | Mostra timer para torneios in-progress com subscription Realtime |
-| `src/pages/Admin.tsx` | Passa props de sync para o BlindTimer |
-
+Abrir o preview e conferir que a logo aparece no hero e na barra superior, checando que a requisição da imagem retorna `image/png` e não HTML.
