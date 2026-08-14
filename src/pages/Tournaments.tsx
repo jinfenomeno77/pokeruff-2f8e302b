@@ -494,7 +494,7 @@ export default function Tournaments() {
         )}
 
         {/* In-progress tournament timer */}
-        {inProgress && (
+        {!loading && inProgress && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -771,7 +771,7 @@ export default function Tournaments() {
         )}
 
         {/* Past tournaments */}
-        {past.length > 0 && (
+        {!loading && past.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
