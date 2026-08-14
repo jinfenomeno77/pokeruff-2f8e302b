@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Calendar, DollarSign, ChevronRight, MapPin, Copy, Check, Trophy, X, RotateCcw, AlertTriangle, Pencil } from "lucide-react";
@@ -55,6 +55,8 @@ export default function Tournaments() {
   const [tournaments, setTournaments] = useState<TournamentRow[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<TournamentRow | null>(null);
   const [registrations, setRegistrations] = useState<TournamentRegistration[]>([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
+  const openRequestRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [inscriptionStep, setInscriptionStep] = useState<InscriptionStep | null>(null);
   const [userRegistration, setUserRegistration] = useState<TournamentRegistration | null>(null);
@@ -193,17 +195,28 @@ export default function Tournaments() {
   }
 
   async function openTournament(t: TournamentRow) {
+    openRequestRef.current = t.id;
     setSelectedTournament(t);
     setInscriptionStep(null);
     setCopied(false);
-    const regs = await fetchTournamentRegistrations(t.id);
-    setRegistrations(regs);
+    setRegistrations([]);
+    setUserRegistration(null);
+    setLoadingRegistrations(true);
 
-    if (user) {
-      const myReg = regs.find((r) => r.user_id === user.id);
-      setUserRegistration(myReg ?? null);
-    } else {
-      setUserRegistration(null);
+    try {
+      const regs = await fetchTournamentRegistrations(t.id);
+      // Ignora respostas fora de ordem (usuário já abriu outro torneio)
+      if (openRequestRef.current !== t.id) return;
+
+      setRegistrations(regs);
+      if (user) {
+        const myReg = regs.find((r) => r.user_id === user.id);
+        setUserRegistration(myReg ?? null);
+      } else {
+        setUserRegistration(null);
+      }
+    } finally {
+      if (openRequestRef.current === t.id) setLoadingRegistrations(false);
     }
   }
 
@@ -422,7 +435,7 @@ export default function Tournaments() {
         )}
 
         {/* Next tournament highlight */}
-        {nextTournament && (
+        {!loading && nextTournament && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -481,7 +494,7 @@ export default function Tournaments() {
         )}
 
         {/* In-progress tournament timer */}
-        {inProgress && (
+        {!loading && inProgress && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -758,7 +771,7 @@ export default function Tournaments() {
         )}
 
         {/* Past tournaments */}
-        {past.length > 0 && (
+        {!loading && past.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -875,7 +888,11 @@ export default function Tournaments() {
                         : `Inscritos Confirmados (${visibleRegistrations.filter(r => r.status === "confirmed").length})`}
                   </h3>
 
-                  {isFinished ? (
+                  {loadingRegistrations ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Carregando inscritos...
+                    </p>
+                  ) : isFinished ? (
                     <div className="rounded-lg border border-border divide-y divide-border max-h-48 overflow-y-auto">
                       {visibleRegistrations.length === 0 && (
                         <p className="text-sm text-muted-foreground text-center py-4">
