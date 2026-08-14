@@ -195,17 +195,28 @@ export default function Tournaments() {
   }
 
   async function openTournament(t: TournamentRow) {
+    openRequestRef.current = t.id;
     setSelectedTournament(t);
     setInscriptionStep(null);
     setCopied(false);
-    const regs = await fetchTournamentRegistrations(t.id);
-    setRegistrations(regs);
+    setRegistrations([]);
+    setUserRegistration(null);
+    setLoadingRegistrations(true);
 
-    if (user) {
-      const myReg = regs.find((r) => r.user_id === user.id);
-      setUserRegistration(myReg ?? null);
-    } else {
-      setUserRegistration(null);
+    try {
+      const regs = await fetchTournamentRegistrations(t.id);
+      // Ignora respostas fora de ordem (usuário já abriu outro torneio)
+      if (openRequestRef.current !== t.id) return;
+
+      setRegistrations(regs);
+      if (user) {
+        const myReg = regs.find((r) => r.user_id === user.id);
+        setUserRegistration(myReg ?? null);
+      } else {
+        setUserRegistration(null);
+      }
+    } finally {
+      if (openRequestRef.current === t.id) setLoadingRegistrations(false);
     }
   }
 
