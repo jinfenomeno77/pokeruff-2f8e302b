@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 import { ChevronRight, Users, Calendar, Trophy } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/logo-pokeruff.jpeg";
+import logoAsset from "@/assets/logo-pokeruff.png.asset.json";
+
+const logo = logoAsset.url;
 
 interface TournamentRow {
   id: string;
@@ -74,7 +76,7 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <img src={logo} alt="PokerUFF" className="h-28 w-28 md:h-36 md:w-36 rounded-full object-cover mx-auto mb-5 border-2 border-primary/30 shadow-lg" />
+            <img src={logo} alt="PokerUFF" className="h-28 w-28 md:h-36 md:w-36 object-contain mx-auto mb-5" />
             {countdown ? (
               <div className="flex items-center justify-center gap-3 mb-3">
                 {[
@@ -98,7 +100,7 @@ export default function Index() {
               POKERUFF
             </h1>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-md mx-auto">
-              Torneios presenciais de Texas Hold'em com estrutura profissional, ranking em tempo real e muita diversão.
+              Torneios presenciais de Texas Hold'em para alunos da UFF, com estrutura profissional e muita resenha.
             </p>
 
             <Link
