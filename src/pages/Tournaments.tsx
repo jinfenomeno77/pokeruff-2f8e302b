@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Calendar, DollarSign, ChevronRight, MapPin, Copy, Check, Trophy, X, RotateCcw, AlertTriangle, Pencil } from "lucide-react";
@@ -55,6 +55,8 @@ export default function Tournaments() {
   const [tournaments, setTournaments] = useState<TournamentRow[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<TournamentRow | null>(null);
   const [registrations, setRegistrations] = useState<TournamentRegistration[]>([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
+  const openRequestRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [inscriptionStep, setInscriptionStep] = useState<InscriptionStep | null>(null);
   const [userRegistration, setUserRegistration] = useState<TournamentRegistration | null>(null);
