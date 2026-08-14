@@ -2,9 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, Trophy, Clock, Shield, LogIn, LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import logoAsset from "@/assets/logo-pokeruff.png.asset.json";
-
-const logo = logoAsset.url;
+import logo from "@/assets/logo-pokeruff.png";
 
 const navItems = [
   { path: "/", label: "Início", icon: Home, suit: "♥" },
