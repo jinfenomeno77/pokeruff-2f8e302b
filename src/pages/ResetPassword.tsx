@@ -10,24 +10,81 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
+  const [invalidMessage, setInvalidMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event
+    let cancelled = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setReady(true);
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+        if (!cancelled) setStatus("ready");
       }
     });
 
-    // Also check hash for recovery type
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setReady(true);
+    async function verifyLink() {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const query = new URLSearchParams(window.location.search);
+
+      const errorDescription = hash.get("error_description") ?? query.get("error_description");
+      if (errorDescription) {
+        if (cancelled) return;
+        setInvalidMessage(decodeURIComponent(errorDescription));
+        setStatus("invalid");
+        return;
+      }
+
+      // Novo formato: ?token_hash=...&type=recovery
+      const tokenHash = query.get("token_hash");
+      if (tokenHash) {
+        const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+        if (cancelled) return;
+        if (error) {
+          setInvalidMessage(error.message);
+          setStatus("invalid");
+        } else {
+          setStatus("ready");
+        }
+        return;
+      }
+
+      // Fluxo PKCE: ?code=...
+      const code = query.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (cancelled) return;
+        if (error) {
+          setInvalidMessage(error.message);
+          setStatus("invalid");
+        } else {
+          setStatus("ready");
+        }
+        return;
+      }
+
+      // Fluxo implícito (tokens no hash) ou sessão já ativa
+      if (window.location.hash.includes("type=recovery")) {
+        if (!cancelled) setStatus("ready");
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (data.session) {
+        setStatus("ready");
+      } else {
+        setInvalidMessage("O link de recuperação é inválido ou expirou.");
+        setStatus("invalid");
+      }
     }
 
-    return () => subscription.unsubscribe();
+    verifyLink();
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSubmit = async () => {
@@ -54,7 +111,7 @@ export default function ResetPassword() {
     }
   };
 
-  if (!ready) {
+  if (status === "checking") {
     return (
       <div className="min-h-screen pb-20 md:pb-10 flex flex-col items-center pt-6 md:pt-16 px-4">
         <div className="w-full max-w-sm text-center">
@@ -63,6 +120,26 @@ export default function ResetPassword() {
       </div>
     );
   }
+
+  if (status === "invalid") {
+    return (
+      <div className="min-h-screen pb-20 md:pb-10 flex flex-col items-center pt-6 md:pt-16 px-4">
+        <div className="w-full max-w-sm text-center">
+          <h1 className="font-display text-2xl font-bold text-foreground mb-2">Link inválido</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {invalidMessage || "O link de recuperação é inválido ou expirou."}
+          </p>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Pedir novo e-mail de recuperação
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen pb-20 md:pb-10 flex flex-col items-center pt-6 md:pt-16 px-4">
