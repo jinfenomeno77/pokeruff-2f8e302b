@@ -74,7 +74,7 @@ export default function ResetPassword() {
 
         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center mb-6">
-            <h1 className="font-display text-3xl font-bold text-gradient-gold mb-2">POKERUFF</h1>
+            <h1 className="font-display text-3xl font-bold text-foreground mb-2">POKERUFF</h1>
             <p className="text-sm text-muted-foreground">Defina sua nova senha</p>
           </div>
 
