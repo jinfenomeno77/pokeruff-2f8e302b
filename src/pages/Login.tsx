@@ -39,7 +39,9 @@ export default function Login() {
         if (error) { setError(error); return; }
       } else {
         if (!firstName.trim() || !lastName.trim()) { setError("Preencha nome e sobrenome."); return; }
-        const { error } = await signUp(email, password, firstName.trim(), lastName.trim());
+        const digits = phone.replace(/\D/g, "");
+        if (digits.length < 10 || digits.length > 11) { setError("Informe um telefone válido com DDD."); return; }
+        const { error } = await signUp(email, password, firstName.trim(), lastName.trim(), phone.trim());
         if (error) { setError(error); return; }
       }
       navigate("/");
