@@ -54,6 +54,7 @@ export type Database = {
           first_name: string
           id: string
           last_name: string
+          phone: string | null
         }
         Insert: {
           created_at?: string | null
@@ -61,6 +62,7 @@ export type Database = {
           first_name?: string
           id: string
           last_name?: string
+          phone?: string | null
         }
         Update: {
           created_at?: string | null
@@ -68,6 +70,7 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string
+          phone?: string | null
         }
         Relationships: []
       }
@@ -213,15 +216,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_profile_for_user: {
-        Args: {
-          _email: string
-          _first_name: string
-          _last_name: string
-          _user_id: string
-        }
-        Returns: undefined
-      }
+      create_profile_for_user:
+        | {
+            Args: {
+              _email: string
+              _first_name: string
+              _last_name: string
+              _user_id: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              _email: string
+              _first_name: string
+              _last_name: string
+              _phone?: string
+              _user_id: string
+            }
+            Returns: undefined
+          }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
