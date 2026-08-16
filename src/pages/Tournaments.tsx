@@ -59,6 +59,7 @@ export default function Tournaments() {
   const openRequestRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [inscriptionStep, setInscriptionStep] = useState<InscriptionStep | null>(null);
+  const [showWarning, setShowWarning] = useState(false);
   const [userRegistration, setUserRegistration] = useState<TournamentRegistration | null>(null);
   const [copied, setCopied] = useState(false);
   const [champions, setChampions] = useState<Record<string, string>>({});
