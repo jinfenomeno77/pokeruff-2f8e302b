@@ -198,6 +198,7 @@ export default function Tournaments() {
     openRequestRef.current = t.id;
     setSelectedTournament(t);
     setInscriptionStep(null);
+    setShowWarning(false);
     setCopied(false);
     setRegistrations([]);
     setUserRegistration(null);
