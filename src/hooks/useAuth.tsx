@@ -7,9 +7,9 @@ interface AuthContext {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  profile: { first_name: string; last_name: string; email: string } | null;
+  profile: { first_name: string; last_name: string; email: string; phone?: string | null } | null;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, firstName: string, lastName: string, phone?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function fetchProfile(userId: string) {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, email")
+      .select("first_name, last_name, email, phone")
       .eq("id", userId)
       .single();
     if (data) setProfile(data);
@@ -74,11 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null };
   }
 
-  async function signUp(email: string, password: string, firstName: string, lastName: string) {
+  async function signUp(email: string, password: string, firstName: string, lastName: string, phone?: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { first_name: firstName, last_name: lastName } },
+      options: { data: { first_name: firstName, last_name: lastName, phone: phone ?? null } },
     });
     if (error) return { error: error.message };
 
@@ -89,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         _first_name: firstName,
         _last_name: lastName,
         _email: email,
+        _phone: phone ?? null,
       });
     }
     return { error: null };

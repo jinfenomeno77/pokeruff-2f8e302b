@@ -13,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
@@ -38,7 +39,9 @@ export default function Login() {
         if (error) { setError(error); return; }
       } else {
         if (!firstName.trim() || !lastName.trim()) { setError("Preencha nome e sobrenome."); return; }
-        const { error } = await signUp(email, password, firstName.trim(), lastName.trim());
+        const digits = phone.replace(/\D/g, "");
+        if (digits.length < 10 || digits.length > 11) { setError("Informe um telefone válido com DDD."); return; }
+        const { error } = await signUp(email, password, firstName.trim(), lastName.trim(), phone.trim());
         if (error) { setError(error); return; }
       }
       navigate("/");
@@ -120,6 +123,19 @@ export default function Login() {
                         className="w-full rounded-lg border border-border bg-secondary px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </div>
+                  </div>
+                )}
+                {mode === "register" && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Telefone</label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/[^\d\s()+-]/g, "").slice(0, 20))}
+                      placeholder="(21) 99999-9999"
+                      className="w-full rounded-lg border border-border bg-secondary px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
                   </div>
                 )}
                 <div>
