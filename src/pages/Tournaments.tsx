@@ -978,13 +978,49 @@ export default function Tournaments() {
                 {/* Inscription flow */}
                 {!isFinished && user && !userRegistration && !inscriptionStep && (
                   <button
-                    onClick={() => setInscriptionStep("confirm")}
+                    onClick={() => setShowWarning(true)}
                     className="flex items-center justify-center gap-2 w-full rounded-lg bg-accent px-4 py-3 font-display text-sm font-semibold text-accent-foreground transition-all hover:scale-[1.02]"
                   >
                     Inscrever-se
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 )}
+
+                {/* Warning modal before payment */}
+                {showWarning && (
+                  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="w-full max-w-sm rounded-lg border border-border bg-card p-5 space-y-4"
+                    >
+                      <h3 className="font-display text-base font-semibold text-foreground">
+                        Aviso
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Os torneio do PokerUFF são direcionados a um público selecionado de estudantes da UFF, caso tenha interesse entre em contato para mais detalhes
+                      </p>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setShowWarning(false)}
+                          className="flex-1 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary/80 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowWarning(false);
+                            setInscriptionStep("confirm");
+                          }}
+                          className="flex-1 rounded-lg bg-primary px-4 py-2.5 font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.02]"
+                        >
+                          Continuar Inscrição
+                        </button>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+
 
                 {/* Already registered message */}
                 {!isFinished && user && userRegistration && !inscriptionStep && (
