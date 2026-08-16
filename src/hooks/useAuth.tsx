@@ -7,9 +7,9 @@ interface AuthContext {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  profile: { first_name: string; last_name: string; email: string } | null;
+  profile: { first_name: string; last_name: string; email: string; phone?: string | null } | null;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, firstName: string, lastName: string, phone?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
