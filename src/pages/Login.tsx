@@ -125,6 +125,19 @@ export default function Login() {
                     </div>
                   </div>
                 )}
+                {mode === "register" && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Telefone</label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/[^\d\s()+-]/g, "").slice(0, 20))}
+                      placeholder="(21) 99999-9999"
+                      className="w-full rounded-lg border border-border bg-secondary px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">E-mail</label>
                   <input
